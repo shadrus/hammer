@@ -78,21 +78,21 @@ func (r *BenchRequest) MakeRequest(step int, wg *sync.WaitGroup, resChan chan<- 
 }
 
 // NewBenchRequest factory for new BenchRequest
-func NewBenchRequest(method, url string, params map[string]string, headers map[string]string, body io.Reader, timeout int) (*BenchRequest, error) {
-	request, err := http.NewRequest(method, url, body)
+func NewBenchRequest(task *Task) (*BenchRequest, error) {
+	request, err := http.NewRequest(task.Method, task.URL, task.Body)
 	if err != nil {
 		return nil, err
 	}
 	q := request.URL.Query()
-	for key, value := range params {
+	for key, value := range task.Params {
 		q.Add(key, value)
 	}
 	request.URL.RawQuery = q.Encode()
 	h := request.Header
-	for key, value := range headers {
+	for key, value := range task.Headers {
 		h.Add(key, value)
 	}
-	req := &BenchRequest{request, timeout}
+	req := &BenchRequest{request, task.Timeout}
 	return req, nil
 }
 
@@ -128,7 +128,7 @@ func (t *Task) Start() []*RequestStatistic {
 	var wg sync.WaitGroup
 	var resChan = make(chan RequestStatistic)
 	defer close(resChan)
-	request, err := NewBenchRequest(t.Method, t.URL, t.Params, t.Headers, t.Body, t.Timeout)
+	request, err := NewBenchRequest(t)
 	if err != nil {
 		log.Error(err)
 		return nil
