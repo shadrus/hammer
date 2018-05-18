@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"io/ioutil"
 	"os"
 
 	"github.com/dollarshaveclub/line"
@@ -22,7 +23,12 @@ func main() {
 	log.Out = os.Stdout
 	log.Formatter = new(logrus.TextFormatter)
 	log.Level = logrus.ErrorLevel
-	task, err := NewTask(confFile)
+	data, err := ioutil.ReadFile(confFile)
+	if err != nil {
+		log.Error(err)
+		return
+	}
+	task, err := NewTask(data)
 	if err != nil {
 		log.Error(err)
 		return

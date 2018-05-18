@@ -3,9 +3,9 @@ package main
 import (
 	"context"
 	"encoding/csv"
+	"encoding/json"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
@@ -212,22 +212,25 @@ func (t *Task) Stats() Statistic {
 	return stats
 }
 
-// NewTask return Task instance from yaml config file
-func NewTask(yamlFileName string) (*Task, error) {
-	data, err := ioutil.ReadFile(yamlFileName)
-	if err != nil {
-		return nil, err
+func selectUnmarshaller(data []byte) func(in []byte, out interface{}) (err error) {
+	if json.Valid(data) {
+		return json.Unmarshal
 	}
-	log.Debug(string(data))
+	return yaml.Unmarshal
+}
+
+// NewTask return Task instance based in config data
+func NewTask(data []byte) (*Task, error) {
 	task := Task{}
-	err = yaml.Unmarshal(data, &task)
+	unmarshallFunc := selectUnmarshaller(data)
+	err := unmarshallFunc(data, &task)
 	if err != nil {
 		return nil, err
 	}
 	return &task, nil
 }
 
-//CreateCSVReport create cdv file base on requests stats
+//CreateCSVReport create csv file base on requests stats
 func CreateCSVReport(filename string, stats []*RequestStatistic) error {
 	file, err := os.Create(filename)
 	checkError("Cannot create file", err)
