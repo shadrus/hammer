@@ -14,7 +14,7 @@ var confFile string
 var reportFile string
 
 func init() {
-	flag.StringVar(&confFile, "conf", "", "yaml config file")
+	flag.StringVar(&confFile, "conf", "", "yaml or json config file")
 	flag.StringVar(&reportFile, "out", "", "report csv file")
 	flag.Parse()
 }
