@@ -3,7 +3,6 @@ language: go
 go:
   - 1.9.x
   - "1.10.x"
-  - master
 before_install:
   - go get -v github.com/dollarshaveclub/line
   - go get -v github.com/sirupsen/logrus
