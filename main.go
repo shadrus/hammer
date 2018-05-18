@@ -23,6 +23,9 @@ func main() {
 	log.Out = os.Stdout
 	log.Formatter = new(logrus.TextFormatter)
 	log.Level = logrus.ErrorLevel
+	if confFile == "" {
+		log.Error("Config file is required")
+	}
 	data, err := ioutil.ReadFile(confFile)
 	if err != nil {
 		log.Error(err)
