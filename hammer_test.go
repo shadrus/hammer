@@ -16,9 +16,11 @@ params:
   url: https://habr.com
 headers:
   User-Agent: hammer
+  Content-Type: application/json
 timeout: 2
 durability: 3
 maxRPS: 5
+body: '{"test": 3}'
 growsCoef: 0.8`)
 	task, err := NewTask(configData)
 	assert.Equal(t, task.Timeout, 2, "they should be equal")
