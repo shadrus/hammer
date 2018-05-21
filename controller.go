@@ -93,6 +93,11 @@ func NewBenchRequest(task *Task) (*BenchRequest, error) {
 	for key, value := range task.Headers {
 		h.Add(key, value)
 	}
+	for key, value := range task.BasicAuth {
+		if key != "" && value != "" {
+			request.SetBasicAuth(key, value)
+		}
+	}
 	req := &BenchRequest{request, task.Timeout}
 	return req, nil
 }
@@ -109,6 +114,7 @@ type Task struct {
 	GrowsCoef  float64 `yaml:"growsCoef"`
 	Results    []*RequestStatistic
 	Body       string
+	BasicAuth  map[string]string
 }
 
 func (t *Task) findGrowthCoef() float64 {
