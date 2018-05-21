@@ -28,6 +28,5 @@ deploy:
   on:
     repo: shadrus/hammer
     tags: true
-    file: "dist/*"
     branch: master
     condition: $LATEST = true
