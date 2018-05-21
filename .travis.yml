@@ -16,7 +16,7 @@ before_install:
 - go get gopkg.in/yaml.v2
 script:
 - go test ./...
-- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -out="./hammer_{{.OS}}_{{.Arch}}" -arch="amd64" -output="hammer.." -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -rebuild -verbose ./...; fi
+- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -output="./hammer_{{.OS}}_{{.Arch}}" -arch="amd64" -output="hammer.." -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -rebuild -verbose ./...; fi
 deploy:
   provider: releases
   skip_cleanup: true
