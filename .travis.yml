@@ -1,12 +1,22 @@
 language: go
-
 go:
-  - 1.9.x
-  - "1.10.x"
+- 1.9.x
+- "1.10.x"
 before_install:
-  - go get -v github.com/dollarshaveclub/line
-  - go get -v github.com/sirupsen/logrus
-  - go get -v github.com/stretchr/testify/assert
-
+- go get github.com/mitchellh/gox
+- go get -v github.com/dollarshaveclub/line
+- go get -v github.com/sirupsen/logrus
+- go get -v github.com/stretchr/testify/assert
 script:
-  - go test ./...
+- go test ./...
+deploy:
+  provider: releases
+  api_key:
+    secure: bKMkPIYIfz1yfHI5lqIUv5L+CK86bbhIO+e/Hc8q3x3dulQUiREDsvLu1z5rHGYbioZ2Zs6qxklCwyEG6c0AfyOEtMSSbxGTmMxVotwX09fB9Qq1nZzBfaHvoKNSTVkziO4IrCuyeLQ78cgLgG1dWFTr6X9liHg3nAg62+qaznQirMH7/6zELU+Tm0tkmgJq04GM/GTwN1uRlxkmNNE2UYVCwexaWurL33qhFdhdPQEu6/zHEI6HFvmOCpweB2YEfzfKPbq8ckYEeVn8UEXpx90ZEWekQy1yq97XCZToSLRz9L2CIISKbTuTgko3eOYLbSQPZSPffJAe/ulvt/C/Voe0DE9G83Wq6/BrKf9QI6EtTIGLB7PvoBHWUmrrtwJLDVPrSqUOvvEVOD2jb7Wgg0Sv1hWYEMvI0sr9JBomsN73XEb8HSyuXl4uI4A+cn7k9P3f7lh6FCG+s2EsuA1Ar/OaYvUa5aEnz9xZLXTdXFX5BQh/cmGhN1ppkfKZ112TnywT2CfDN+Ga6GX+kVYAa/X1uJI6dM1VwwKzHzbZL9ZjlPa0PNOkaHdj8v6nvFNK8O+FLBdrzxvuc7eWjYAnAx9o9y1msQOzIbW1AF8mEnbllgQaFnfc42X55Ddx+KD6pdZ6MYT3ddCKYr4MFpKrZs3ZUKKJ8BpC8xC5i8UIRR0=
+  file: 
+  - hammer.windows.amd64.exe
+  - hammer.darwin.amd64
+  - hammer.linux.amd64
+  on:
+    repo: shadrus/hammer
+    tags: true
