@@ -4,6 +4,8 @@ params:
   url: https://habr.com
 headers:
   User-Agent: hammer
+  Content-Type: application/json
+body: '{"test": 3}'
 timeout: 2
 durability: 3
 maxRPS: 5

@@ -5,10 +5,10 @@ import (
 	"encoding/csv"
 	"encoding/json"
 	"fmt"
-	"io"
 	"net/http"
 	"os"
 	"strconv"
+	"strings"
 	"sync"
 	"time"
 
@@ -73,13 +73,14 @@ func (r *BenchRequest) MakeRequest(step int, wg *sync.WaitGroup, resChan chan<- 
 		log.Error(err)
 		return
 	}
+	defer resp.Body.Close()
 	reqDuration := time.Since(startTime)
 	resChan <- RequestStatistic{reqDuration, resp.StatusCode, step}
 }
 
 // NewBenchRequest factory for new BenchRequest
 func NewBenchRequest(task *Task) (*BenchRequest, error) {
-	request, err := http.NewRequest(task.Method, task.URL, task.Body)
+	request, err := http.NewRequest(task.Method, task.URL, strings.NewReader(task.Body))
 	if err != nil {
 		return nil, err
 	}
@@ -107,7 +108,7 @@ type Task struct {
 	MaxRPS     int     `yaml:"maxRPS"`
 	GrowsCoef  float64 `yaml:"growsCoef"`
 	Results    []*RequestStatistic
-	Body       io.Reader
+	Body       string
 }
 
 func (t *Task) findGrowthCoef() float64 {
@@ -128,11 +129,6 @@ func (t *Task) Start() []*RequestStatistic {
 	var wg sync.WaitGroup
 	var resChan = make(chan RequestStatistic)
 	defer close(resChan)
-	request, err := NewBenchRequest(t)
-	if err != nil {
-		log.Error(err)
-		return nil
-	}
 	go func(c <-chan RequestStatistic) {
 		for {
 			stat := <-c
@@ -154,6 +150,11 @@ func (t *Task) Start() []*RequestStatistic {
 		<-limiter
 		log.Infof("Performing step %d", step)
 		for i := 0; i < t.getCurrentRPS(step); i++ {
+			request, err := NewBenchRequest(t)
+			if err != nil {
+				log.Error(err)
+				return nil
+			}
 			wg.Add(1)
 			go request.MakeRequest(step, &wg, resChan)
 		}
