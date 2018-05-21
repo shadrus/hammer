@@ -9,6 +9,7 @@ before_install:
 - go get -v github.com/stretchr/testify/assert
 script:
 - go test ./...
+- if [ "${LATEST}" = "true" ]; then gox -os="linux darwin windows" -arch="amd64" -output="logshare.." -ldflags "-X main.Rev=`git rev-parse --short HEAD`" -verbose ./...; fi
 deploy:
   provider: releases
   api_key:
@@ -20,3 +21,4 @@ deploy:
   on:
     repo: shadrus/hammer
     tags: true
+    condition: $LATEST = true
