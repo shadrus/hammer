@@ -41,4 +41,18 @@ growsCoef: 0.8`)
 	configData = []byte(`{"url": http://10.10.77.140:15500/create`)
 	task, err = NewTask(configData)
 	assert.NotNil(t, err)
+
+	configData = []byte(`
+url: http://10.10.77.140:15500/create
+method: GET
+timeout: 2
+durability: 3
+maxRPS: 5
+basicauth:
+  testuser: testpassword 
+growsCoef: 0.8`)
+	task, _ = NewTask(configData)
+	request, err := NewBenchRequest(task)
+	assert.Nil(t, err)
+	assert.NotNil(t, request.Header["Authorization"])
 }

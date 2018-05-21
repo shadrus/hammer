@@ -10,3 +10,5 @@ timeout: 2
 durability: 3
 maxRPS: 5
 growsCoef: 0.8
+basicauth:
+  testuser: testpassword
