@@ -4,6 +4,7 @@
 !.vscode/launch.json
 !.vscode/extensions.json
 launch.json
+*.yaml
 *.csv
 debug
 *.exe
