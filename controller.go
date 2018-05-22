@@ -104,21 +104,21 @@ func NewBenchRequest(task *Task) (*BenchRequest, error) {
 
 // Task settings
 type Task struct {
-	URL        string
-	Method     string
-	Params     map[string]string
-	Headers    map[string]string
-	Timeout    int
-	Durability int
-	MaxRPS     int     `yaml:"maxRPS"`
-	GrowsCoef  float64 `yaml:"growsCoef"`
-	Results    []*RequestStatistic
-	Body       string
-	BasicAuth  map[string]string
+	URL       string
+	Method    string
+	Params    map[string]string
+	Headers   map[string]string
+	Timeout   int
+	Steps     int
+	MaxRPS    int     `yaml:"maxRPS"`
+	GrowsCoef float64 `yaml:"growsCoef"`
+	Results   []*RequestStatistic
+	Body      string
+	BasicAuth map[string]string
 }
 
 func (t *Task) findGrowthCoef() float64 {
-	return float64(t.MaxRPS) / (float64(t.Durability) * t.GrowsCoef)
+	return float64(t.MaxRPS) / (float64(t.Steps) * t.GrowsCoef)
 }
 
 func (t *Task) getCurrentRPS(step int) int {
@@ -152,7 +152,7 @@ func (t *Task) Start() []*RequestStatistic {
 
 	}(resChan)
 	limiter := time.Tick(1 * time.Second)
-	for step := 1; step <= t.Durability; step++ {
+	for step := 1; step <= t.Steps; step++ {
 		<-limiter
 		log.Infof("Performing step %d", step)
 		for i := 0; i < t.getCurrentRPS(step); i++ {
@@ -164,10 +164,12 @@ func (t *Task) Start() []*RequestStatistic {
 			wg.Add(1)
 			go request.MakeRequest(step, &wg, resChan)
 		}
-		log.Debug("waiting")
+		log.Debug("waiting to complete step")
 		wg.Wait()
 	}
-	log.Infof("Task time elapsed")
+	// BUG in debug panic: send on closed channel
+	log.Debug("Task time elapsed")
+	time.Sleep(1 * time.Second)
 	return t.Results
 }
 
@@ -205,7 +207,7 @@ func (t *Task) StepStats(step int) StepStatistic {
 // Stats prints Task statisctic
 func (t *Task) Stats() Statistic {
 	var stats Statistic
-	for i := 1; i <= t.Durability; i++ {
+	for i := 1; i <= t.Steps; i++ {
 		stepStat := t.StepStats(i)
 		if stepStat.LongestRequest > stats.LongestRequest {
 			stats.LongestRequest = stepStat.LongestRequest
