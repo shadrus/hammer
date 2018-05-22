@@ -7,7 +7,7 @@ headers:
   Content-Type: application/json
 body: '{"test": 3}'
 timeout: 2
-durability: 3
+steps: 3
 maxRPS: 5
 growsCoef: 0.8
 basicauth:
