@@ -1,9 +1,11 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 
 	"github.com/dollarshaveclub/line"
@@ -14,12 +16,23 @@ var log = logrus.New()
 var confFile string
 var reportFile string
 var debugFlag bool
+var port int
 
 func init() {
 	flag.StringVar(&confFile, "conf", "", "yaml or json config file")
 	flag.StringVar(&reportFile, "out", "", "report csv file")
+	flag.IntVar(&port, "p", 0, "port to get statistic over HTTP")
 	flag.BoolVar(&debugFlag, "d", false, "enables debug logs")
 	flag.Parse()
+}
+
+func startRest(port int, task *Task) {
+	http.HandleFunc("/stats", func(w http.ResponseWriter, r *http.Request) {
+		w.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(w).Encode(task)
+	})
+
+	log.Fatal(http.ListenAndServe(fmt.Sprintf(":%d", port), nil))
 }
 
 func main() {
@@ -46,6 +59,9 @@ func main() {
 		return
 	}
 	line.Green("Working. Please wait...\n")
+	if port > 0 {
+		go startRest(9000, task)
+	}
 	results := task.Start()
 	for i := 1; i <= task.Steps; i++ {
 		stepStat := task.StepStats(i)
