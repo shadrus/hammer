@@ -60,7 +60,7 @@ func main() {
 	}
 	line.Green("Working. Please wait...\n")
 	if port > 0 {
-		go startRest(9000, task)
+		go startRest(port, task)
 	}
 	results := task.Start()
 	for i := 1; i <= task.Steps; i++ {
